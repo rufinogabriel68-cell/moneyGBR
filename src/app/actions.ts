@@ -94,31 +94,27 @@ async function ensureSeedData() {
   };
 
   // debts
-  await addDoc(C_DEBTS, { name: "Cartão de Crédito Nubank", totalAmount: 4500, remainingAmount: 3200, interestRate: 12.5, dueDate: nextMonth, status: "active", priority: "high", monthlyPayment: 400, notes: "Fatura de eletrônicos.", scope: "pessoal", createdAt: now });
-  await addDoc(C_DEBTS, { name: "Empréstimo Banco do Brasil", totalAmount: 15000, remainingAmount: 11200, interestRate: 3.2, dueDate: nextMonth, status: "active", priority: "medium", monthlyPayment: 650, notes: "Reforma doméstica.", scope: "pessoal", createdAt: now });
-  await addDoc(C_DEBTS, { name: "Fornecedor Matéria-Prima XYZ", totalAmount: 3800, remainingAmount: 2100, interestRate: 2.8, dueDate: nextMonth, status: "active", priority: "high", monthlyPayment: 700, notes: "Insumos pagos no cartão PF.", scope: "empresarial", createdAt: now });
+  const debtsToSeed = [
+    { name: "Academia", totalAmount: 210, remainingAmount: 0, interestRate: 0, dueDate: day(-9), status: "paid", priority: "low", monthlyPayment: 210, notes: "Parcela 7/7 Dia 14", scope: "pessoal", createdAt: now },
+    { name: "Carro", totalAmount: 41020, remainingAmount: 24000, interestRate: 0, dueDate: day(-20), status: "active", priority: "high", monthlyPayment: 854.59, notes: "Parcela 20/48", scope: "pessoal", createdAt: now },
+    { name: "NU (Nubank)", totalAmount: 278.03, remainingAmount: 0, interestRate: 0, dueDate: day(-5), status: "paid", priority: "medium", monthlyPayment: 278.03, notes: "Parcela 11/15", scope: "pessoal", createdAt: now },
+    { name: "MP (Mercado Pago)", totalAmount: 447.37, remainingAmount: 447.37, interestRate: 0, dueDate: day(-5), status: "active", priority: "medium", monthlyPayment: 447.37, notes: "Parcela 6/12", scope: "pessoal", createdAt: now },
+    { name: "Kallan 1", totalAmount: 151.88, remainingAmount: 151.88, interestRate: 0, dueDate: day(-9), status: "active", priority: "medium", monthlyPayment: 151.88, notes: "Parcela 6/7", scope: "pessoal", createdAt: now },
+    { name: "Kallan 2", totalAmount: 28.46, remainingAmount: 28.46, interestRate: 0, dueDate: day(-9), status: "active", priority: "medium", monthlyPayment: 28.46, notes: "Parcela 6/10", scope: "pessoal", createdAt: now },
+    { name: "MEI", totalAmount: 87.00, remainingAmount: 87.00, interestRate: 0, dueDate: day(0), status: "active", priority: "high", monthlyPayment: 87.00, notes: "DAS Mensal", scope: "empresarial", createdAt: now },
+    { name: "Anel", totalAmount: 300, remainingAmount: 0, interestRate: 0, dueDate: day(0), status: "paid", priority: "low", monthlyPayment: 300, notes: "Pago", scope: "pessoal", createdAt: now },
+  ];
+  for (const d of debtsToSeed) await addDoc(C_DEBTS, d);
 
   // goals
-  const target = new Date();
-  target.setFullYear(now.getFullYear() + 1);
-  await addDoc(C_GOALS, { name: "Reserva de Emergência", targetAmount: 12000, currentAmount: 2500, deadline: target, category: "Segurança", scope: "pessoal", createdAt: now });
-  await addDoc(C_GOALS, { name: "Viagem de Fim de Ano", targetAmount: 5000, currentAmount: 1200, deadline: target, category: "Lazer", scope: "pessoal", createdAt: now });
-  await addDoc(C_GOALS, { name: "Caixa Giro Empresa", targetAmount: 15000, currentAmount: 4200, deadline: target, category: "Empresa", scope: "empresarial", createdAt: now });
+  await addDoc(C_GOALS, { name: "Reserva de Emergência", targetAmount: 1000, currentAmount: 0, deadline: null, category: "Segurança", scope: "pessoal", createdAt: now });
 
   // transactions
   const txs = [
-    { description: "Salário Mensal", amount: 6500, type: "income", category: "Salário", sourceOrDestination: "Banco Itaú", date: day(15), notes: "Salário CLT.", scope: "pessoal", costCenter: "Pessoal", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
-    { description: "Freelance Landing Page", amount: 1200, type: "income", category: "Freelance", sourceOrDestination: "Conta Cora", date: day(8), notes: "Projeto de site.", scope: "pessoal", costCenter: "Serviços", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
-    { description: "Venda Produto - ACME Ltda", amount: 3800, type: "income", category: "Vendas", sourceOrDestination: "PIX Conta PF", date: day(7), notes: "Faturamento recebido no PF.", scope: "empresarial", costCenter: "Vendas", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: "ACME Ltda" },
-    { description: "Consultoria", amount: 2400, type: "income", category: "Serviços", sourceOrDestination: "Nubank PF", date: day(3), notes: "NF emitida pelo MEI.", scope: "empresarial", costCenter: "Serviços", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: "Startup Beta" },
-    { description: "Aluguel & Condomínio", amount: 2200, type: "expense", category: "Moradia", sourceOrDestination: "Banco Itaú", date: day(10), notes: "Fixa mensal.", scope: "pessoal", costCenter: "Moradia", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
-    { description: "Supermercado", amount: 650.32, type: "expense", category: "Alimentação", sourceOrDestination: "Cartão Itaú", date: day(12), notes: "Rancho mensal.", scope: "pessoal", costCenter: "Alimentação", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
-    { description: "Compra Material - Insumos", amount: 890, type: "expense", category: "Material", sourceOrDestination: "Cartão Nubank PF", date: day(11), notes: "EMPRESA DEVE REEMBOLSAR.", scope: "empresarial", costCenter: "Material", isBusinessExpense: true, reimbursementStatus: "pendente", taxDeductible: true, projectClient: "Estoque Geral" },
-    { description: "Anúncios Meta Ads", amount: 420, type: "expense", category: "Marketing", sourceOrDestination: "Cartão Itaú PF", date: day(9), notes: "Tráfego pago pago com PF.", scope: "empresarial", costCenter: "Marketing", isBusinessExpense: true, reimbursementStatus: "pendente", taxDeductible: true, projectClient: "Loja Online" },
-    { description: "Embalagens e Frete", amount: 186.5, type: "expense", category: "Frete", sourceOrDestination: "PIX Nubank PF", date: day(6), notes: "Envio de pedidos.", scope: "empresarial", costCenter: "Frete", isBusinessExpense: true, reimbursementStatus: "pendente", taxDeductible: true, projectClient: null },
-    { description: "Combustível", amount: 220, type: "expense", category: "Transporte", sourceOrDestination: "Cartão Itaú", date: day(9), notes: "Etanol.", scope: "pessoal", costCenter: "Transporte", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
-    { description: "Netflix & Spotify", amount: 84.8, type: "expense", category: "Lazer", sourceOrDestination: "Nubank", date: day(4), notes: "Streaming.", scope: "pessoal", costCenter: "Lazer", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
-    { description: "Farmácia", amount: 98.5, type: "expense", category: "Saúde", sourceOrDestination: "Nubank", date: day(1), notes: "Remédios.", scope: "pessoal", costCenter: "Saúde", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
+    { description: "Pagamento Academia", amount: 210, type: "expense", category: "Saúde", sourceOrDestination: "Pessoal", date: day(9), notes: "7/7 Dia 14", scope: "pessoal", costCenter: "Pessoal", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
+    { description: "Parcela Carro", amount: 854.59, type: "expense", category: "Transporte", sourceOrDestination: "Pessoal", date: day(20), notes: "20/48", scope: "pessoal", costCenter: "Transporte", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
+    { description: "Fatura Nubank", amount: 278.03, type: "expense", category: "Dívidas", sourceOrDestination: "Pessoal", date: day(5), notes: "11/15", scope: "pessoal", costCenter: "Dívidas", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
+    { description: "Anel", amount: 300, type: "expense", category: "Lazer", sourceOrDestination: "Pessoal", date: day(1), notes: "Pago", scope: "pessoal", costCenter: "Pessoal", isBusinessExpense: false, reimbursementStatus: "na", taxDeductible: false, projectClient: null },
   ];
   for (const t of txs) await addDoc(C_TX, t);
 
@@ -385,5 +381,16 @@ export async function createDailyBalance(input: DailyBalanceInput) {
 
 export async function deleteDailyBalance(id: string) {
   await deleteDoc(C_DAILY, id);
+  revalidatePath("/");
+}
+
+export async function resetAllData() {
+  const collections = [C_TX, C_DEBTS, C_GOALS, C_REIMB, C_DAILY];
+  for (const c of collections) {
+    const docs = await listDocs(c);
+    for (const d of docs) {
+      await deleteDoc(c, d.id);
+    }
+  }
   revalidatePath("/");
 }
