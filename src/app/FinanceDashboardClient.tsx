@@ -40,9 +40,6 @@ import {
   History,
   Database,
   Save,
-  Settings,
-  ShieldCheck,
-  ExternalLink,
 } from "lucide-react";
 import {
   createTransaction,
@@ -59,7 +56,6 @@ import {
   updateReimbursementStatus,
   createDailyBalance,
   deleteDailyBalance,
-  resetAllData,
   TransactionInput,
   DebtInput,
   GoalInput,
@@ -94,7 +90,7 @@ export default function FinanceDashboardClient({
   initialDailyBalances,
   storageMode,
 }: FinanceDashboardClientProps) {
-  const [activeTab, setActiveTab] = useState<"overview" | "transactions" | "daily" | "empresa" | "debts" | "goals" | "insights" | "settings">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "transactions" | "daily" | "empresa" | "debts" | "goals" | "insights">("overview");
   const [viewScope, setViewScope] = useState<"consolidado" | "pessoal" | "empresarial">("consolidado");
   const [isPending, startTransition] = useTransition();
 
@@ -431,17 +427,6 @@ export default function FinanceDashboardClient({
     startTransition(async ()=>{ try{ await deleteDailyBalance(id); triggerSuccess("Registro excluído."); }catch{ triggerError("Erro."); }});
   };
 
-  const handleResetData = async () => {
-    if(!confirm("⚠️ ATENÇÃO: Isso irá apagar TODAS as transações, dívidas, metas e saldos permanentemente. Deseja continuar?")) return;
-    startTransition(async () => {
-      try {
-        await resetAllData();
-        triggerSuccess("Todos os dados foram resetados com sucesso.");
-        setActiveTab("overview");
-      } catch { triggerError("Erro ao resetar dados."); }
-    });
-  };
-
   // INSIGHTS
   const generateInsights = () => {
     const tips:any[] = [];
@@ -537,7 +522,6 @@ export default function FinanceDashboardClient({
                 ["debts","Dívidas"],
                 ["goals","Metas"],
                 ["insights","Consultor AI"],
-                ["settings","Ajustes"],
               ].map(([key,label])=>(
                 <button key={key}
                   onClick={()=>setActiveTab(key as any)}
@@ -1397,102 +1381,6 @@ export default function FinanceDashboardClient({
                   <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 text-purple-400"/> Centro de custo preenchido nas despesas PJ</li>
                   <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 text-purple-400"/> Pró-labore registrado mensalmente</li>
                 </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* SETTINGS TAB */}
-        {activeTab === "settings" && (
-          <div className="space-y-6 animate-fadeIn">
-            <div className="rounded-2xl border border-purple-800/60 bg-[#150f26] p-8 shadow-xl">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-3 rounded-2xl bg-purple-500/20 text-purple-300 border border-purple-500/30">
-                  <Settings className="h-6 w-6" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-white">Configurações do Sistema</h3>
-                  <p className="text-sm text-purple-300/70">Gerencie sua conexão com banco de dados e manutenção de conta</p>
-                </div>
-              </div>
-
-              <div className="grid gap-6 md:grid-cols-2">
-                {/* Firebase Config Card */}
-                <div className="rounded-2xl border border-purple-800/60 bg-[#1c1432] p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-2 rounded-lg ${storageMode === 'firebase' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
-                      <Database className="h-5 w-5" />
-                    </div>
-                    <h4 className="font-bold text-white">Status do Banco de Dados</h4>
-                  </div>
-                  
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-purple-900/20 border border-purple-800/50">
-                      <span className="text-xs text-purple-300 font-bold">Modo de Operação</span>
-                      <span className={`text-xs font-black uppercase px-2 py-1 rounded-full ${storageMode === 'firebase' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' : 'bg-amber-500/20 text-amber-400 border-amber-500/40'}`}>
-                        {storageMode === 'firebase' ? '🔥 Firebase Ativo' : '💾 Memória Local'}
-                      </span>
-                    </div>
-
-                    <p className="text-xs text-purple-300/70 leading-relaxed">
-                      {storageMode === 'firebase' 
-                        ? 'Seu sistema está sincronizado com a nuvem. Todos os dados são persistentes e seguros no Firestore.' 
-                        : 'Você está no modo de demonstração. Os dados são salvos apenas em memória e serão perdidos ao reiniciar o servidor. Configure as variáveis de ambiente FIREBASE_* para ativar o banco persistente.'}
-                    </p>
-
-                    <a 
-                      href="https://console.firebase.google.com/" 
-                      target="_blank" 
-                      className="flex items-center justify-center gap-2 w-full rounded-xl bg-purple-900/40 border border-purple-700/60 py-2.5 text-xs font-bold text-purple-200 hover:bg-purple-800/60 transition-all"
-                    >
-                      Abrir Console Firebase <ExternalLink className="h-3 w-3" />
-                    </a>
-                  </div>
-                </div>
-
-                {/* Account Actions Card */}
-                <div className="rounded-2xl border border-purple-800/60 bg-[#1c1432] p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-pink-500/20 text-pink-400">
-                      <ShieldCheck className="h-5 w-5" />
-                    </div>
-                    <h4 className="font-bold text-white">Segurança e Dados</h4>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-xl bg-pink-500/5 border border-pink-500/20">
-                      <h5 className="text-xs font-black text-pink-300 uppercase mb-1">Zona de Perigo</h5>
-                      <p className="text-[11px] text-pink-400/80 mb-4">Esta ação irá apagar permanentemente todas as transações, dívidas e histórico de saldos.</p>
-                      
-                      <button 
-                        onClick={handleResetData}
-                        disabled={isPending}
-                        className="flex items-center justify-center gap-2 w-full rounded-xl bg-pink-600/20 border border-pink-600/40 py-2.5 text-xs font-bold text-pink-300 hover:bg-pink-600 hover:text-white transition-all shadow-lg shadow-pink-900/20"
-                      >
-                        <Trash2 className="h-4 w-4" /> Resetar Todas as Contas
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Preferences Placeholder */}
-              <div className="mt-6 rounded-2xl border border-purple-800/60 bg-[#1c1432] p-6">
-                <h4 className="font-bold text-white mb-4">Preferências de Exibição</h4>
-                <div className="grid gap-4 md:grid-cols-3">
-                  <label className="flex items-center gap-3 p-3 rounded-xl bg-purple-900/10 border border-purple-800/40 opacity-50 cursor-not-allowed">
-                    <input type="checkbox" checked readOnly className="accent-purple-600" />
-                    <span className="text-xs text-purple-300 font-bold">Modo Dark Purple (Ativo)</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 rounded-xl bg-purple-900/10 border border-purple-800/40 opacity-50 cursor-not-allowed">
-                    <input type="checkbox" checked readOnly className="accent-purple-600" />
-                    <span className="text-xs text-purple-300 font-bold">Relatórios PF/PJ (Ativo)</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 rounded-xl bg-purple-900/10 border border-purple-800/40 opacity-50 cursor-not-allowed">
-                    <input type="checkbox" checked readOnly className="accent-purple-600" />
-                    <span className="text-xs text-purple-300 font-bold">Seed Automático (Ativo)</span>
-                  </label>
-                </div>
               </div>
             </div>
           </div>
